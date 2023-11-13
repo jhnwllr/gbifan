@@ -1,10 +1,12 @@
-
+#' Delete a project
+#'
+#' @param id the id of the project
+#'
+#' @return list of information about deleted project
+#' @export
+#'
+#' @examples
 delete_project = function(id) {
-
-httr::DELETE(url =  paste0(gbif_base(),"occurrence/annotation/project/",id),
-          config = httr::authenticate(Sys.getenv("GBIF_USER"), Sys.getenv("GBIF_PWD")),
-          httr::add_headers("Content-Type: application/json"),
-          encode = 'raw') %>%
-  httr::content(as = "text")
-
+url <- paste0(gbifan_url("project/"),id)
+gbifan_delete(url)  
 }

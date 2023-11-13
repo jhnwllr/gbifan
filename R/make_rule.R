@@ -1,26 +1,30 @@
-# make rule
-make_rule = function(projectId,taxonKey,geometry,annotation) {
+#' Make a rule 
+#'
+#' @param taxonKey GBIF taxonKey for which rule applies to.  
+#' @param geometry WKT text of the rule. 
+#' @param annotation One of the controlled vocabulary. 
+#' @param ... A named list of parameters (geometry and annotation required).  
+#'
+#' @return
+#' A `list` of information about the rule. 
+#' 
+#' @details
+#' Annotation needs to be part of controlled vocab. 
+#'  
+#' @export
+#'
+#' @examples
+make_rule = function(taxonKey = NULL, geometry=NULL,annotation=NULL,...) {
+ 
+ args <- list(taxonKey = taxonKey, geometry=geometry, annotation=annotation, ...)
+ 
+ if(is.null(args$taxonKey)) stop("please supply taxonKey")
+ if(is.null(args$geometry)) stop("please supply geometry")
+ if(is.null(args$annotation)) stop("please supply annotation")
 
-  tmp = tempdir()
-
-  jsonlite::toJSON(list(
-    taxonKey=taxonKey,
-    geometry=geometry,
-    projectId=projectId,
-    annotation=annotation),
-    auto_unbox=TRUE) %>%
-    writeLines(paste0(tmp,"/rule.json"))
-
-  ruleId =
-    httr::POST(url = "http://labs.gbif.org:7013/v1/occurrence/annotation/rule",
-    config = httr::authenticate(Sys.getenv("GBIF_USER"), Sys.getenv("GBIF_PWD")),
-    add_headers("Content-Type: application/json"),
-    body = httr::upload_file(paste0(tmp,"/rule.json")),
-    encode = 'raw') %>%
-    httr::content(as = "text") %>%
-    jsonlite::fromJSON() %>%
-    pluck("id")
-
-return(ruleId)
+ url <- gbifan_url("rule")
+ body <- gbifan_body(args)
+ gbifan_post(url,body)
+ 
 }
 
